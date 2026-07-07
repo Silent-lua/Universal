@@ -29,7 +29,15 @@ if targetScriptUrl then
     print("SilentHub: Juego detectado (" .. detectedGameName .. "). Iniciando...")
     
     local success, err = pcall(function()
-        loadstring(game:HttpGet(targetScriptUrl))()
+        -- Se añade ?t= y la marca de tiempo actual para evitar la caché vieja del servidor
+        local rawCode = game:HttpGet(targetScriptUrl .. "?t=" .. os.time())
+        local loadedFunction, compileError = loadstring(rawCode)
+        
+        if loadedFunction then
+            loadedFunction()
+        else
+            error("Error de compilación en el script remoto: " .. tostring(compileError))
+        end
     end)
 
     if not success then
